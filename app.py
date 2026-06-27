@@ -347,7 +347,7 @@ if st.checkbox("🔮 Показать аналитику (Instructor View)", val
             df["stress"].mean()
         ]
 
-              fig_radar = go.Figure(data=go.Scatterpolar(
+        fig_radar = go.Figure(data=go.Scatterpolar(
             r=values + [values[0]],
             theta=categories + [categories[0]],
             fill='toself',
@@ -361,11 +361,6 @@ if st.checkbox("🔮 Показать аналитику (Instructor View)", val
                 bgcolor='#faf5ff'
             ),
             paper_bgcolor='white',
-            showlegend=False,
-            title="Средние оценки по трём ключевым метрикам"
-        )
-        fig_radar.update_layout(
-            polar=dict(radialaxis=dict(visible=True, range=[0, 10])),
             showlegend=False,
             title="Средние оценки по трём ключевым метрикам"
         )

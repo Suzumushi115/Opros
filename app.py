@@ -199,6 +199,7 @@ with st.form("survey_form"):
     progress.progress(min(filled / 10, 1.0), text=f"Заполнено: {filled}/10")
 
 # ── Сохранение данных ───────────────────────────────────────────────────
+# ── Сохранение данных ───────────────────────────────────────────────────
 if submitted:
     doc_data = {
         "age": int(age),
@@ -216,7 +217,31 @@ if submitted:
 
     try:
         db.collection("responses").add(doc_data)
-               st.success("✅ Спасибо! Ваш ответ сохранён в облачной базе данных.")
+        st.success("✅ Спасибо! Ваш ответ сохранён в облачной базе данных.")
+        
+        # Фиолетовые шарики-конфетти
+        import time
+        for _ in range(3):
+            st.balloons()
+            time.sleep(0.3)
+        
+        # Благодарственная карточка
+        st.markdown("""
+        <div style="
+            background: linear-gradient(135deg, #f3e7ff, #e9d5ff);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            border-left: 5px solid #8b5cf6;
+            margin-top: 1rem;
+        ">
+            <h3 style="color: #7c3aed; margin: 0;">🎉 Спасибо за участие!</h3>
+            <p style="color: #6b21a8; margin: 0.5rem 0 0 0;">
+                Ваше мнение помогает сделать образование лучше.
+            </p>
+        </div>
+        """, unsafe_allow_html=True)
+    except Exception as e:
+        st.error(f"❌ Ошибка при сохранении: {e}")
         
         # Фиолетовые шарики-конфетти
         import time

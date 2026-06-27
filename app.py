@@ -6,16 +6,17 @@ import plotly.express as px
 import plotly.graph_objects as go
 from datetime import datetime
 import os
-
-# ── Инициализация Firebase ──────────────────────────────────────────────
-KEY_PATH = os.getenv("FIREBASE_KEY", "serviceAccountKey.json")
-
+import json
+# ── Инициализация Firebase через Streamlit Secrets ─────────────────────
 if not firebase_admin._apps:
-    if not os.path.exists(KEY_PATH):
-        st.error("❌ Файл serviceAccountKey.json не найден. Поместите его в папку проекта.")
+    try:
+        firebase_config = st.secrets["firеbase_key"]
+        # Преобразуем секреты в формат credentials
+        cred = credentials.Certificate(dict(firebase_config))
+        firebase_admin.initialize_app(cred)
+    except Exception as e:
+        st.error(f"Ошибка инициализации Firebase: {e}")
         st.stop()
-    cred = credentials.Certificate(KEY_PATH)
-    firebase_admin.initialize_app(cred)
 
 db = firestore.client()
 

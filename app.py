@@ -118,6 +118,12 @@ st.markdown("""
     .stSelectbox [data-baseweb="popover"] div {
         color: #4c1d95 !important;
     }
+        button[kind="secondaryFormSubmit"] p,
+    button[kind="formSubmit"] p,
+    button[data-testid="baseButton-secondaryFormSubmit"] p {
+        color: #ffffff !important;
+        -webkit-text-fill-color: #ffffff !important;
+    }
 </style>
 """, unsafe_allow_html=True)# ── Инициализация Firebase через Streamlit Secrets ─────────────────────
 if not firebase_admin._apps:

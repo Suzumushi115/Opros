@@ -7,6 +7,7 @@ import plotly.graph_objects as go
 from datetime import datetime
 import os
 import json
+# ═══ КАСТОМНЫЕ СТИЛИ: фиолетовая тема ═══════════════════════════════════
 st.markdown("""
 <style>
     /* Фиолетовый градиент заголовка */
@@ -14,17 +15,23 @@ st.markdown("""
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         padding: 2rem;
         border-radius: 1rem;
-        color: white;
+        color: white !important;
         text-align: center;
         margin-bottom: 2rem;
     }
+    .main-header h1, .main-header p {
+        color: white !important;
+    }
     
-    /* Красивые карточки */
+    /* Красивые карточки — работает в обеих темах */
     .stForm {
         background: linear-gradient(145deg, #f3e7ff 0%, #e9d5ff 100%);
         border-radius: 1rem;
         padding: 1rem;
         border: 2px solid #c084fc;
+    }
+    [data-testid="stForm"] label, [data-testid="stForm"] span {
+        color: #4c1d95 !important;
     }
     
     /* Кнопка отправки */
@@ -53,11 +60,17 @@ st.markdown("""
         border: 2px solid #a855f7 !important;
         border-radius: 1rem !important;
     }
+    .stSuccess p {
+        color: #4c1d95 !important;
+    }
     
     /* Метрики */
     [data-testid="stMetricValue"] {
         color: #7c3aed !important;
         font-weight: bold !important;
+    }
+    [data-testid="stMetricLabel"] {
+        color: #6b21a8 !important;
     }
     
     /* Разделитель */
@@ -67,9 +80,31 @@ st.markdown("""
         background: linear-gradient(90deg, #c084fc, #8b5cf6, #c084fc);
         margin: 2rem 0;
     }
+    
+    /* Подписи к графикам */
+    .stPlotlyChart {
+        background: rgba(243, 231, 255, 0.05) !important;
+        border-radius: 1rem;
+    }
+    
+    /* Чекбокс и радио — тёмная тема */
+    [data-testid="stCheckbox"] label, [data-testid="stRadio"] label {
+        color: inherit !important;
+    }
+    
+    /* Dataframe */
+    .stDataFrame {
+        border: 1px solid #c084fc !important;
+        border-radius: 0.5rem;
+    }
+    
+    /* Expander */
+    .stExpander {
+        border: 1px solid #c084fc !important;
+        border-radius: 0.5rem;
+    }
 </style>
-""", unsafe_allow_html=True)
-# ── Инициализация Firebase через Streamlit Secrets ─────────────────────
+""", unsafe_allow_html=True)# ── Инициализация Firebase через Streamlit Secrets ─────────────────────
 if not firebase_admin._apps:
     try:
         firebase_config = st.secrets["firеbase_key"]
@@ -197,8 +232,7 @@ with st.form("survey_form"):
     if comment: filled += 1
     
     progress.progress(min(filled / 10, 1.0), text=f"Заполнено: {filled}/10")
-
-# ── Сохранение данных ───────────────────────────────────────────────────
+    submitted = st.form_submit_button("📤 Отправить ответ", use_container_width=True)
 # ── Сохранение данных ───────────────────────────────────────────────────
 if submitted:
     doc_data = {

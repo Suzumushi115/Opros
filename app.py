@@ -7,6 +7,68 @@ import plotly.graph_objects as go
 from datetime import datetime
 import os
 import json
+st.markdown("""
+<style>
+    /* Фиолетовый градиент заголовка */
+    .main-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        padding: 2rem;
+        border-radius: 1rem;
+        color: white;
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+    
+    /* Красивые карточки */
+    .stForm {
+        background: linear-gradient(145deg, #f3e7ff 0%, #e9d5ff 100%);
+        border-radius: 1rem;
+        padding: 1rem;
+        border: 2px solid #c084fc;
+    }
+    
+    /* Кнопка отправки */
+    .stButton>button {
+        background: linear-gradient(135deg, #8b5cf6 0%, #a855f7 100%) !important;
+        color: white !important;
+        border-radius: 0.8rem !important;
+        border: none !important;
+        padding: 0.8rem 2rem !important;
+        font-weight: bold !important;
+        transition: all 0.3s ease !important;
+    }
+    .stButton>button:hover {
+        transform: translateY(-2px) !important;
+        box-shadow: 0 8px 25px rgba(139, 92, 246, 0.4) !important;
+    }
+    
+    /* Слайдеры фиолетовые */
+    .stSlider [data-baseweb="slider"] [role="slider"] {
+        background-color: #8b5cf6 !important;
+    }
+    
+    /* Успешное сообщение */
+    .stSuccess {
+        background: linear-gradient(135deg, #d8b4fe 0%, #c084fc 100%) !important;
+        border: 2px solid #a855f7 !important;
+        border-radius: 1rem !important;
+    }
+    
+    /* Метрики */
+    [data-testid="stMetricValue"] {
+        color: #7c3aed !important;
+        font-weight: bold !important;
+    }
+    
+    /* Разделитель */
+    hr {
+        border: none;
+        height: 2px;
+        background: linear-gradient(90deg, #c084fc, #8b5cf6, #c084fc);
+        margin: 2rem 0;
+    }
+</style>
+""", unsafe_allow_html=True)
 # ── Инициализация Firebase через Streamlit Secrets ─────────────────────
 if not firebase_admin._apps:
     try:
@@ -27,10 +89,34 @@ st.set_page_config(
     layout="wide"
 )
 
-st.title("📊 Отношение к системе баллов в образовании")
-st.caption(
-    "Анонимный опрос для исследования восприятия балльной системы оценивания. Данные собираются в образовательных целях.")
-
+# Красивый фиолетовый заголовок
+st.markdown("""
+<div class="main-header">
+    <h1>📊 Отношение к системе баллов в образовании</h1>
+    <p style="opacity: 0.9; margin-top: 0.5rem;">
+        Анонимный опрос для исследования восприятия балльной системы оценивания
+    </p>
+</div>
+""", unsafe_allow_html=True)
+# Счётчик ответов
+try:
+    count = len(list(db.collection("responses").stream()))
+    st.markdown(f"""
+    <div style="text-align: center; margin-bottom: 1rem;">
+        <span style="
+            background: linear-gradient(135deg, #8b5cf6, #a855f7);
+            color: white;
+            padding: 0.4rem 1.2rem;
+            border-radius: 2rem;
+            font-size: 0.9rem;
+            font-weight: 600;
+        ">
+            📝 Уже собрано ответов: {count}
+        </span>
+    </div>
+    """, unsafe_allow_html=True)
+except:
+    pass
 # ── Форма опроса ──────────────────────────────────────────────────────────
 with st.form("survey_form"):
     st.subheader("Заполните форму")
@@ -93,7 +179,24 @@ with st.form("survey_form"):
         placeholder="Расскажите о своём опыте с балльной системой, предложениях по улучшению и т.д."
     )
 
-    submitted = st.form_submit_button("📤 Отправить ответ", use_container_width=True)
+       # Прогресс-бар заполнения
+    st.markdown("---")
+    progress = st.progress(0, text="Заполните форму")
+    
+    # Считаем заполненность (простая эвристика)
+    filled = 0
+    if age != 18: filled += 1
+    if gender: filled += 1
+    if education_level: filled += 1
+    if year_of_study: filled += 1
+    if fairness != 5: filled += 1
+    if motivation != 5: filled += 1
+    if stress != 5: filled += 1
+    if criteria: filled += 1
+    if comparison: filled += 1
+    if comment: filled += 1
+    
+    progress.progress(min(filled / 10, 1.0), text=f"Заполнено: {filled}/10")
 
 # ── Сохранение данных ───────────────────────────────────────────────────
 if submitted:
@@ -113,8 +216,30 @@ if submitted:
 
     try:
         db.collection("responses").add(doc_data)
-        st.success("✅ Спасибо! Ваш ответ сохранён в облачной базе данных.")
-        st.balloons()
+               st.success("✅ Спасибо! Ваш ответ сохранён в облачной базе данных.")
+        
+        # Фиолетовые шарики-конфетти
+        import time
+        colors = ["#8b5cf6", "#a855f7", "#c084fc", "#d8b4fe", "#e9d5ff"]
+        for _ in range(3):
+            st.balloons()
+            time.sleep(0.3)
+        
+        # Благодарственная карточка
+        st.markdown("""
+        <div style="
+            background: linear-gradient(135deg, #f3e7ff, #e9d5ff);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            border-left: 5px solid #8b5cf6;
+            margin-top: 1rem;
+        ">
+            <h3 style="color: #7c3aed; margin: 0;">🎉 Спасибо за участие!</h3>
+            <p style="color: #6b21a8; margin: 0.5rem 0 0 0;">
+                Ваше мнение помогает сделать образование лучше.
+            </p>
+        </div>
+        """, unsafe_allow_html=True)
     except Exception as e:
         st.error(f"❌ Ошибка при сохранении: {e}")
 
@@ -122,7 +247,7 @@ if submitted:
 st.markdown("---")
 st.subheader("🔒 Панель аналитики")
 
-if st.checkbox("Показать аналитику (Instructor View)", value=False):
+if st.checkbox("🔮 Показать аналитику (Instructor View)", value=False):
     docs = db.collection("responses").stream()
     data = [doc.to_dict() for doc in docs]
 
@@ -130,9 +255,24 @@ if st.checkbox("Показать аналитику (Instructor View)", value=Fa
         st.info("📭 Пока нет собранных данных.")
     else:
         df = pd.DataFrame(data)
-        df["timestamp"] = pd.to_datetime(df["timestamp"])
-
-        st.success(f"📥 Загружено записей: **{len(df)}**")
+               # Красивый индикатор загрузки
+        st.markdown("""
+        <div style="
+            background: linear-gradient(90deg, #f3e7ff, #e9d5ff, #f3e7ff);
+            background-size: 200% 100%;
+            animation: shimmer 2s infinite;
+            height: 4px;
+            border-radius: 2px;
+            margin: 1rem 0;
+        ">
+        <style>
+            @keyframes shimmer {
+                0% { background-position: -200% 0; }
+                100% { background-position: 200% 0; }
+            }
+        </style>
+        </div>
+        """, unsafe_allow_html=True)
 
         # ── Общая сводка ─────────────────────────────────────────────────
         st.subheader("📋 Сводка данных")
@@ -157,7 +297,7 @@ if st.checkbox("Показать аналитику (Instructor View)", value=Fa
                 df, x="fairness", nbins=10,
                 title="Распределение: Справедливость системы",
                 labels={"fairness": "Оценка справедливости (1–10)", "count": "Количество"},
-                color_discrete_sequence=["#636EFA"]
+                color_discrete_sequence=["#8b5cf6"]
             )
             fig_fair.update_layout(bargap=0.1)
             st.plotly_chart(fig_fair, use_container_width=True)
@@ -168,7 +308,7 @@ if st.checkbox("Показать аналитику (Instructor View)", value=Fa
                 df, x="motivation", nbins=10,
                 title="Распределение: Мотивация к учёбе",
                 labels={"motivation": "Оценка мотивации (1–10)", "count": "Количество"},
-                color_discrete_sequence=["#00CC96"]
+                color_discrete_sequence=["#a855f7"]
             )
             fig_mot.update_layout(bargap=0.1)
             st.plotly_chart(fig_mot, use_container_width=True)
@@ -182,12 +322,23 @@ if st.checkbox("Показать аналитику (Instructor View)", value=Fa
             df["stress"].mean()
         ]
 
-        fig_radar = go.Figure(data=go.Scatterpolar(
+              fig_radar = go.Figure(data=go.Scatterpolar(
             r=values + [values[0]],
             theta=categories + [categories[0]],
             fill='toself',
+            fillcolor='rgba(139, 92, 246, 0.3)',
+            line=dict(color='#8b5cf6', width=3),
             name='Средние значения'
         ))
+        fig_radar.update_layout(
+            polar=dict(
+                radialaxis=dict(visible=True, range=[0, 10], gridcolor='#e9d5ff'),
+                bgcolor='#faf5ff'
+            ),
+            paper_bgcolor='white',
+            showlegend=False,
+            title="Средние оценки по трём ключевым метрикам"
+        )
         fig_radar.update_layout(
             polar=dict(radialaxis=dict(visible=True, range=[0, 10])),
             showlegend=False,
@@ -213,7 +364,8 @@ if st.checkbox("Показать аналитику (Instructor View)", value=Fa
             comp_counts, x="Система оценивания", y="Количество",
             title="Что предпочитают респонденты",
             color="Система оценивания",
-            color_discrete_sequence=px.colors.qualitative.Set2
+            color_discrete_sequence=px.colors.sequential.Purples
+
         )
         st.plotly_chart(fig_comp, use_container_width=True)
 

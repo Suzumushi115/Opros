@@ -103,6 +103,21 @@ st.markdown("""
         border: 1px solid #c084fc !important;
         border-radius: 0.5rem;
     }
+      /* Тёмный текст внутри селектбоксов */
+    [data-baseweb="select"] span,
+    [data-baseweb="select"] div {
+        color: #4c1d95 !important;
+    }
+    
+    /* Тёмный текст в радиокнопках */
+    [data-testid="stMarkdownContainer"] p {
+        color: #4c1d95 !important;
+    }
+    
+    /* Тёмный текст в дропдаунах */
+    .stSelectbox [data-baseweb="popover"] div {
+        color: #4c1d95 !important;
+    }
 </style>
 """, unsafe_allow_html=True)# ── Инициализация Firebase через Streamlit Secrets ─────────────────────
 if not firebase_admin._apps:

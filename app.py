@@ -327,7 +327,7 @@ if submitted:
 st.markdown("---")
 st.subheader("🔒 Панель аналитики")
 
-if st.checkbox("🔮 Показать аналитику (Instructor View)", value=False):
+if st.checkbox("🔮 Показать аналитику", value=False):
     docs = db.collection("responses").stream()
     data = [doc.to_dict() for doc in docs]
 
@@ -378,6 +378,15 @@ if st.checkbox("🔮 Показать аналитику (Instructor View)", val
         for col in df_export.columns:
             if df_export[col].dtype == 'object':
                 df_export[col] = df_export[col].apply(lambda x: ', '.join(x) if isinstance(x, list) else x)
+                        # CSV с BOM для Excel (чтобы кириллица читалась)
+        csv = df_export.to_csv(index=False, encoding='utf-8-sig')
+        st.download_button(
+            label="📄 Скачать CSV (UTF-8)",
+            data=csv,
+            file_name="survey_responses.csv",
+            mime="text/csv; charset=utf-8-sig",
+            use_container_width=True
+        )
         
         csv = df_export.to_csv(index=False, encoding='utf-8-sig')
         st.download_button(

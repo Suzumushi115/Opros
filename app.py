@@ -368,34 +368,7 @@ if st.checkbox("🔮 Показать аналитику", value=False):
 
       #   Визуализации                        ─
         st.subheader("📈 Визуализация результатов")
-                # Экспорт данных
-        st.subheader("💾 Экспорт данных")
-
-        # Подготовка данных
-        df_export = df.copy()
-        if 'timestamp' in df_export.columns:
-            df_export['timestamp'] = df_export['timestamp'].astype(str)
-        for col in df_export.columns:
-            if df_export[col].dtype == 'object':
-                df_export[col] = df_export[col].apply(lambda x: ', '.join(x) if isinstance(x, list) else x)
-                        # CSV с BOM для Excel (чтобы кириллица читалась)
-        csv = df_export.to_csv(index=False, encoding='utf-8-sig')
-        st.download_button(
-            label="📄 Скачать CSV (UTF-8)",
-            data=csv,
-            file_name="survey_responses.csv",
-            mime="text/csv; charset=utf-8-sig",
-            use_container_width=True
-        )
-
-        csv = df_export.to_csv(index=False, encoding='utf-8-sig')
-        st.download_button(
-            label="📄 Скачать CSV",
-            data=csv,
-            file_name="survey_responses.csv",
-            mime="text/csv",
-            use_container_width=True
-        )
+        col_v1, col_v2 = st.columns(2)
             # Распределение оценки справедливости
             fig_fair = px.histogram(
                 df, x="fairness", nbins=10,

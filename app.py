@@ -125,7 +125,7 @@ st.markdown("""
         -webkit-text-fill-color: #ffffff !important;
     }
 </style>
-""", unsafe_allow_html=True)#   Инициализация Firebase через Streamlit Secrets           ─
+""", unsafe_allow_html=True)# ── Инициализация Firebase через Streamlit Secrets ─────────────────────
 if not firebase_admin._apps:
     try:
         firebase_config = st.secrets["firеbase_key"]
@@ -138,7 +138,7 @@ if not firebase_admin._apps:
 
 db = firestore.client()
 
-#   Настройка страницы                          
+# ── Настройка страницы ──────────────────────────────────────────────────
 st.set_page_config(
     page_title="Опрос: Система баллов в образовании",
     page_icon="📊",
@@ -173,7 +173,7 @@ try:
     """, unsafe_allow_html=True)
 except:
     pass
-#   Форма опроса                              
+# ── Форма опроса ──────────────────────────────────────────────────────────
 with st.form("survey_form"):
     st.subheader("Заполните форму")
 
@@ -254,7 +254,7 @@ with st.form("survey_form"):
     
     progress.progress(min(filled / 10, 1.0), text=f"Заполнено: {filled}/10")
     submitted = st.form_submit_button("📤 Отправить ответ", use_container_width=True)
-#   Сохранение данных                          ─
+# ── Сохранение данных ───────────────────────────────────────────────────
 if submitted:
     doc_data = {
         "age": int(age),
@@ -323,11 +323,11 @@ if submitted:
     except Exception as e:
         st.error(f"❌ Ошибка при сохранении: {e}")
 
-#   Аналитика (режим преподавателя)                    
+# ── Аналитика (режим преподавателя) ──────────────────────────────────────
 st.markdown("---")
 st.subheader("🔒 Панель аналитики")
 
-if st.checkbox("🔮 Показать аналитику", value=False):
+if st.checkbox("🔮 Показать аналитику (Instructor View)", value=False):
     docs = db.collection("responses").stream()
     data = [doc.to_dict() for doc in docs]
 
@@ -354,7 +354,7 @@ if st.checkbox("🔮 Показать аналитику", value=False):
         </div>
         """, unsafe_allow_html=True)
 
-        #   Общая сводка                         ─
+        # ── Общая сводка ─────────────────────────────────────────────────
         st.subheader("📋 Сводка данных")
         col_a, col_b, col_c = st.columns(3)
         with col_a:
@@ -366,9 +366,12 @@ if st.checkbox("🔮 Показать аналитику", value=False):
 
         st.dataframe(df.head(20), use_container_width=True)
 
-      #   Визуализации                        ─
+        # ── Визуализации ───────────────────────────────────────────────
         st.subheader("📈 Визуализация результатов")
+
         col_v1, col_v2 = st.columns(2)
+
+        with col_v1:
             # Распределение оценки справедливости
             fig_fair = px.histogram(
                 df, x="fairness", nbins=10,

@@ -368,28 +368,6 @@ if st.checkbox("🔮 Показать аналитику", value=False):
 
         #  Визуализации 
         st.subheader("📈 Визуализация результатов")
-# Подготовка данных
-df_export = df.copy()
-if 'timestamp' in df_export.columns:
-    df_export['timestamp'] = df_export['timestamp'].astype(str)
-if 'time' in df_export.columns:
-    df_export['time'] = df_export['time'].astype(str)
-# Списки в строки
-for col in df_export.columns:
-    if df_export[col].dtype == 'object':
-        df_export[col] = df_export[col].apply(
-            lambda x: ', '.join(x) if isinstance(x, list) else x
-        )
-
-# CSV с BOM для корректной кириллицы в Excel
-csv = df_export.to_csv(index=False, encoding='utf-8-sig')
-st.download_button(
-    label="📄 Скачать CSV",
-    data=csv,
-    file_name="survey_responses.csv",
-    mime="text/csv",
-    use_container_width=True
-)
         col_v1, col_v2 = st.columns(2)
 
         with col_v1:

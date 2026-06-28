@@ -7,6 +7,7 @@ import plotly.graph_objects as go
 from datetime import datetime
 import os
 import json
+from io import BytesIO
 #КАСТОМН
 st.markdown("""
 <style>

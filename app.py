@@ -368,16 +368,34 @@ if st.checkbox("🔮 Показать аналитику", value=False):
 
         #   Визуализации                        ─
         st.subheader("📈 Визуализация результатов")
-                # Экспорт данных
-     file_name=f"survey_export_{current_time}.csv", mime="text/csv", use_container_width=True
-)
-
-excel_buffer = io.BytesIO()
-with pd.ExcelWriter(excel_buffer, engine='openpyxl') as writer:
-    df_russian.to_excel(writer, index=False, sheet_name='Ответы респондентов')
-excel_buffer.seek(0)
-st.download_button(
-
+  # ── Экспорт данных ───────────────────────────────────────────────
+        st.subheader("💾 Экспорт данных")
+        
+        # Подготовка данных для экспорта (убираем datetime, заменяем на строки)
+        df_export = df.copy()
+        if 'timestamp' in df_export.columns:
+            df_export['timestamp'] = df_export['timestamp'].astype(str)
+        if 'time' in df_export.columns:
+            df_export['time'] = df_export['time'].astype(str)
+        # Списки тоже превращаем в строки (иначе Excel ругается)
+        for col in df_export.columns:
+            if df_export[col].dtype == 'object':
+                df_export[col] = df_export[col].apply(lambda x: ', '.join(x) if isinstance(x, list) else x)
+        
+        col_exp1, col_exp2 = st.columns(2)
+         # Excel
+        with col_exp2:
+            import io
+            buffer = io.BytesIO()
+            with pd.ExcelWriter(buffer, engine='openpyxl') as writer:
+                df_export.to_excel(writer, index=False, sheet_name='Responses')
+            st.download_button(
+                label="📊 Скачать Excel",
+                data=buffer.getvalue(),
+                mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                file_name="survey_responses.xlsx",
+                use_container_width=True
+            )
 
         with col_v1:
             # Распределение оценки справедливости

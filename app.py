@@ -477,3 +477,73 @@ if st.checkbox("🔮 Показать аналитику", value=False):
                     st.write(c)
         else:
             st.info("Комментариев пока нет.")
+                    # 📥 Экспорт данных
+        st.markdown("---")
+        st.subheader("📥 Экспорт данных")
+        
+        export_col1, export_col2 = st.columns(2)
+        
+        with export_col1:
+            # CSV Export
+            csv_buffer = BytesIO()
+            df_export = df.copy()
+            if 'timestamp' in df_export.columns:
+                df_export['timestamp'] = df_export['timestamp'].astype(str)
+            if 'date' in df_export.columns:
+                df_export['date'] = df_export['date'].astype(str)
+            if 'criteria' in df_export.columns:
+                df_export['criteria'] = df_export['criteria'].apply(lambda x: ', '.join(x) if isinstance(x, list) else x)
+            
+            df_export.to_csv(csv_buffer, index=False, encoding='utf-8-sig')
+            csv_buffer.seek(0)
+            
+            st.download_button(
+                label="📄 Скачать CSV",
+                data=csv_buffer,
+                file_name=f"survey_results_{datetime.now().strftime('%Y-%m-%d')}.csv",
+                mime="text/csv",
+                use_container_width=True
+            )
+        
+        with export_col2:
+            # Excel Export
+            excel_buffer = BytesIO()
+            df_excel = df.copy()
+            if 'timestamp' in df_excel.columns:
+                df_excel['timestamp'] = df_excel['timestamp'].astype(str)
+            if 'date' in df_excel.columns:
+                df_excel['date'] = df_excel['date'].astype(str)
+            if 'criteria' in df_excel.columns:
+                df_excel['criteria'] = df_excel['criteria'].apply(lambda x: ', '.join(x) if isinstance(x, list) else x)
+            
+            with pd.ExcelWriter(excel_buffer, engine='openpyxl') as writer:
+                df_excel.to_excel(writer, sheet_name='Ответы', index=False)
+                
+                summary_data = {
+                    'Метрика': ['Всего ответов', 'Средняя справедливость', 'Средняя мотивация', 'Средний стресс'],
+                    'Значение': [
+                        len(df),
+                        f"{df['fairness'].mean():.2f}",
+                        f"{df['motivation'].mean():.2f}",
+                        f"{df['stress'].mean():.2f}"
+                    ]
+                }
+                pd.DataFrame(summary_data).to_excel(writer, sheet_name='Сводка', index=False)
+                
+                edu_summary = df['education_level'].value_counts().reset_index()
+                edu_summary.columns = ['Уровень образования', 'Количество']
+                edu_summary.to_excel(writer, sheet_name='Образование', index=False)
+                
+                comp_summary = df['comparison'].value_counts().reset_index()
+                comp_summary.columns = ['Система оценивания', 'Количество']
+                comp_summary.to_excel(writer, sheet_name='Предпочтения', index=False)
+            
+            excel_buffer.seek(0)
+            
+            st.download_button(
+                label="📊 Скачать Excel",
+                data=excel_buffer,
+                file_name=f"survey_results_{datetime.now().strftime('%Y-%m-%d')}.xlsx",
+                mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                use_container_width=True
+            )

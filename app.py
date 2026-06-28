@@ -369,25 +369,15 @@ if st.checkbox("🔮 Показать аналитику", value=False):
         #   Визуализации                        ─
         st.subheader("📈 Визуализация результатов")
                 # Экспорт данных
-        st.subheader("💾 Экспорт данных")
-        
-        # Подготовка данных
-        df_export = df.copy()
-        if 'timestamp' in df_export.columns:
-            df_export['timestamp'] = df_export['timestamp'].astype(str)
-        for col in df_export.columns:
-            if df_export[col].dtype == 'object':
-                df_export[col] = df_export[col].apply(lambda x: ', '.join(x) if isinstance(x, list) else x) 
-        
-        csv = df_export.to_csv(index=False, encoding='utf-8-sig')
-        st.download_button(
-            label="📄 Скачать CSV",
-            data=csv,
-            file_name="survey_responses.csv",
-            mime="text/csv",
-            use_container_width=True
-        )
-        col_v1, col_v2 = st.columns(2)
+     file_name=f"survey_export_{current_time}.csv", mime="text/csv", use_container_width=True
+)
+
+excel_buffer = io.BytesIO()
+with pd.ExcelWriter(excel_buffer, engine='openpyxl') as writer:
+    df_russian.to_excel(writer, index=False, sheet_name='Ответы респондентов')
+excel_buffer.seek(0)
+st.download_button(
+
 
         with col_v1:
             # Распределение оценки справедливости

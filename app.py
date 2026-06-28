@@ -125,7 +125,7 @@ st.markdown("""
         -webkit-text-fill-color: #ffffff !important;
     }
 </style>
-""", unsafe_allow_html=True)# ── Инициализация Firebase через Streamlit Secrets ─────────────────────
+""", unsafe_allow_html=True)#   Инициализация Firebase через Streamlit Secrets           ─
 if not firebase_admin._apps:
     try:
         firebase_config = st.secrets["firеbase_key"]
@@ -138,7 +138,7 @@ if not firebase_admin._apps:
 
 db = firestore.client()
 
-# ── Настройка страницы ──────────────────────────────────────────────────
+#   Настройка страницы                          
 st.set_page_config(
     page_title="Опрос: Система баллов в образовании",
     page_icon="📊",
@@ -173,7 +173,7 @@ try:
     """, unsafe_allow_html=True)
 except:
     pass
-# ── Форма опроса ──────────────────────────────────────────────────────────
+#   Форма опроса                              
 with st.form("survey_form"):
     st.subheader("Заполните форму")
 
@@ -254,7 +254,7 @@ with st.form("survey_form"):
     
     progress.progress(min(filled / 10, 1.0), text=f"Заполнено: {filled}/10")
     submitted = st.form_submit_button("📤 Отправить ответ", use_container_width=True)
-# ── Сохранение данных ───────────────────────────────────────────────────
+#   Сохранение данных                          ─
 if submitted:
     doc_data = {
         "age": int(age),
@@ -323,7 +323,7 @@ if submitted:
     except Exception as e:
         st.error(f"❌ Ошибка при сохранении: {e}")
 
-# ── Аналитика (режим преподавателя) ──────────────────────────────────────
+#   Аналитика (режим преподавателя)                    
 st.markdown("---")
 st.subheader("🔒 Панель аналитики")
 
@@ -354,7 +354,7 @@ if st.checkbox("🔮 Показать аналитику (Instructor View)", val
         </div>
         """, unsafe_allow_html=True)
 
-        # ── Общая сводка ─────────────────────────────────────────────────
+        #   Общая сводка                         ─
         st.subheader("📋 Сводка данных")
         col_a, col_b, col_c = st.columns(3)
         with col_a:
@@ -366,8 +366,37 @@ if st.checkbox("🔮 Показать аналитику (Instructor View)", val
 
         st.dataframe(df.head(20), use_container_width=True)
 
-        # ── Визуализации ───────────────────────────────────────────────
+        #   Визуализации                        ─
         st.subheader("📈 Визуализация результатов")
+                # Экспорт данных 
+        st.subheader("💾 Экспорт данных")
+        
+        col_exp1, col_exp2 = st.columns(2)
+        
+        # CSV
+        with col_exp1:
+            csv = df.to_csv(index=False, encoding='utf-8-sig')
+            st.download_button(
+                label="📄 Скачать CSV",
+                data=csv,
+                file_name="survey_responses.csv",
+                mime="text/csv",
+                use_container_width=True
+            )
+        
+        # Excel
+        with col_exp2:
+            import io
+            buffer = io.BytesIO()
+            with pd.ExcelWriter(buffer, engine='openpyxl') as writer:
+                df.to_excel(writer, index=False, sheet_name='Responses')
+            st.download_button(
+                label="📊 Скачать Excel",
+                data=buffer.getvalue(),
+                mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                file_name="survey_responses.xlsx",
+                use_container_width=True
+            )
 
         col_v1, col_v2 = st.columns(2)
 

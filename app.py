@@ -366,38 +366,36 @@ if st.checkbox("🔮 Показать аналитику", value=False):
 
         st.dataframe(df.head(20), use_container_width=True)
 
-        #   Визуализации                        ─
+      #   Визуализации                        ─
         st.subheader("📈 Визуализация результатов")
-           # Экспорт данных 
+                # Экспорт данных
         st.subheader("💾 Экспорт данных")
-        
-        col_exp1, col_exp2 = st.columns(2)
-        
-        # CSV
-        with col_exp1:
-            csv = df.to_csv(index=False, encoding='utf-8-sig')
-            st.download_button(
-                label="📄 Скачать CSV",
-                data=csv,
-                file_name="survey_responses.csv",
-                mime="text/csv",
-                use_container_width=True
-            )
-        
-        # Excel
-        with col_exp2:
-            import io
-            buffer = io.BytesIO()
-            with pd.ExcelWriter(buffer, engine='openpyxl') as writer:
-                df.to_excel(writer, index=False, sheet_name='Responses')
-            st.download_button(
-                label="📊 Скачать Excel",
-                data=buffer.getvalue(),
-                mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-                file_name="survey_responses.xlsx",
-                use_container_width=True
-            )
-        with col_v1:
+
+        # Подготовка данных
+        df_export = df.copy()
+        if 'timestamp' in df_export.columns:
+            df_export['timestamp'] = df_export['timestamp'].astype(str)
+        for col in df_export.columns:
+            if df_export[col].dtype == 'object':
+                df_export[col] = df_export[col].apply(lambda x: ', '.join(x) if isinstance(x, list) else x)
+                        # CSV с BOM для Excel (чтобы кириллица читалась)
+        csv = df_export.to_csv(index=False, encoding='utf-8-sig')
+        st.download_button(
+            label="📄 Скачать CSV (UTF-8)",
+            data=csv,
+            file_name="survey_responses.csv",
+            mime="text/csv; charset=utf-8-sig",
+            use_container_width=True
+        )
+
+        csv = df_export.to_csv(index=False, encoding='utf-8-sig')
+        st.download_button(
+            label="📄 Скачать CSV",
+            data=csv,
+            file_name="survey_responses.csv",
+            mime="text/csv",
+            use_container_width=True
+        )
             # Распределение оценки справедливости
             fig_fair = px.histogram(
                 df, x="fairness", nbins=10,

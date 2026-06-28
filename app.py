@@ -368,6 +368,35 @@ if st.checkbox("🔮 Показать аналитику", value=False):
 
         #   Визуализации                        ─
         st.subheader("📈 Визуализация результатов")
+           # Экспорт данных 
+        st.subheader("💾 Экспорт данных")
+        
+        col_exp1, col_exp2 = st.columns(2)
+        
+        # CSV
+        with col_exp1:
+            csv = df.to_csv(index=False, encoding='utf-8-sig')
+            st.download_button(
+                label="📄 Скачать CSV",
+                data=csv,
+                file_name="survey_responses.csv",
+                mime="text/csv",
+                use_container_width=True
+            )
+        
+        # Excel
+        with col_exp2:
+            import io
+            buffer = io.BytesIO()
+            with pd.ExcelWriter(buffer, engine='openpyxl') as writer:
+                df.to_excel(writer, index=False, sheet_name='Responses')
+            st.download_button(
+                label="📊 Скачать Excel",
+                data=buffer.getvalue(),
+                mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                file_name="survey_responses.xlsx",
+                use_container_width=True
+            )
         with col_v1:
             # Распределение оценки справедливости
             fig_fair = px.histogram(
